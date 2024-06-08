@@ -30,10 +30,19 @@ const startCommand = (ctx) => {
         reply_markup: {
             inline_keyboard: [
                 [
-                    { text: 'Movies Info 🍿', callback_data: 'movies' },
+                    { text: 'Movies Info 🍿', callback_data: 'movies' }
+                ],
+                [
+                    { text: 'Trending This Weak', callback_data: 'weaklyTrend' }
+                ],
+                [
+                    { text: 'Trending This Day ', callback_data: 'dailyTrend' }
+                ],
+                [
                     { text: 'restart 👀', callback_data: 'restart' }
                 ]
             ]
+             
         },
         parse_mode: "Markdown",
         disable_web_page_preview: true
