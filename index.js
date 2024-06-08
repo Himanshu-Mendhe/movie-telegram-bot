@@ -30,8 +30,22 @@ const startCommand = (ctx) => {
         reply_markup: {
             inline_keyboard: [
                 [
-                    { text: 'Information about Movies', callback_data: 'movies' },
-                    { text: 'restart', callback_data: 'restart' }
+                    { text: 'Movies Info 🍿', callback_data: 'movies' },
+                    { text: 'restart 👀', callback_data: 'restart' }
+                ]
+            ]
+        },
+        parse_mode: "Markdown",
+        disable_web_page_preview: true
+    });
+};
+
+const restartAfterResult = (ctx) => {
+    ctx.reply('🔎 \n for restarting the bot click the following button', {
+        reply_markup: {
+            inline_keyboard: [
+                [
+                    { text: 'restart 👀', callback_data: 'restart' }
                 ]
             ]
         },
@@ -46,7 +60,7 @@ bot.start((ctx)=>{
 
 
 bot.action('restart',(ctx)=>{
-    ctx.reply("restarting the bot")
+    ctx.reply("restarting the bot");
     startCommand(ctx)
 })
 
@@ -75,11 +89,9 @@ const reply = () => {
 *Awards:* ${movieData.Awards}
 *IMDB Rating:* ${movieData.imdbRating}
 `;
-                ctx.reply(replyMessage);
+                ctx.replyWithMarkdown(replyMessage);
             }
-
-            
-            
+            restartAfterResult(ctx);
         } catch (error) {
             ctx.reply('An error occurred while fetching the movie data. Please try again later.');
         }
