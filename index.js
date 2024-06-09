@@ -1,59 +1,8 @@
 const { BOT_ID, API_KEY } = require('./config/env-config.js');
+const {fetchMovie, popularMovie, anticipated, boxOffice} = require('./apiCalls.js')
 const { Telegraf } = require('telegraf');
-const express = require('express');
-const axios = require('axios');
 
 const bot = new Telegraf(BOT_ID);
-const app = express();
-const port = 3000;
-
-// Define the fetchMovie function
-const fetchMovie = async (title, year) => {
-    try {
-        const response = await axios.get('http://www.omdbapi.com/', {
-            params: {
-                t: title,
-                y: year,
-                apikey: API_KEY,
-                plot: 'full'
-            }
-        });
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching data from OMDb API:', error);
-        throw new Error('Internal Server Error');
-    }
-};
-
-const popularMovie = async () => {
-    try {
-        const response = await axios.get('https://api.trakt.tv/movies/popular');
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching data from trakt API:', error);
-        throw new Error('Internal Server Error');
-    }
-};
-
-const anticipated = async () => {
-    try {
-        const response = await axios.get('https://api.trakt.tv/movies/anticipated');
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching data from trakt API:', error);
-        throw new Error('Internal Server Error');
-    }
-};
-
-const boxOffice = async () => {
-    try {
-        const response = await axios.get('https://api.trakt.tv/movies/boxoffice');
-        return response.data;
-    } catch (error) {
-        console.error('Error fetching data from trakt API:', error);
-        throw new Error('Internal Server Error');
-    }
-};
 
 const startCommand = (ctx) => {
     ctx.reply('Welcome to the bot, what do you want to do', {
@@ -100,13 +49,36 @@ bot.start((ctx)=>{
     startCommand(ctx)
 })
 
-
-bot.action('restart',(ctx)=>{
-    ctx.reply("restarting the bot");
-    startCommand(ctx)
+bot.action('restart', async(ctx)=>{
+    await ctx.reply("restarting the bot");
+    await startCommand(ctx)
 })
 
-const movieReply = () => {
+bot.on('callback_query', (ctx) => {
+    const callbackData = ctx.callbackQuery.data;
+
+    if (callbackData === 'movies') {
+        ctx.reply('You clicked Movies. Please enter the name of the movie:');
+        movieInfoReply();
+    }
+    else if (callbackData === 'popularMovies') {
+        ctx.reply('You clicked Popular Movies.');
+        popularReply();
+    }
+    else if (callbackData === 'boxOffice') {
+        ctx.reply('You clicked Box Office Collection.');
+        reply();
+    }
+    else if (callbackData === 'anticipated') {
+        ctx.reply('You clicked Most Anticipated Movies.');
+        reply();
+    }
+    else {
+        ctx.reply('Unknown option');
+    }
+});
+
+const movieInfoReply = () => {
     bot.on('text', async (ctx) => {
         const userInput = ctx.message.text;
         try {
@@ -131,9 +103,9 @@ const movieReply = () => {
 *Awards:* ${movieData.Awards}
 *IMDB Rating:* ${movieData.imdbRating}
 `;
-                ctx.replyWithMarkdown(replyMessage);
+                await ctx.replyWithMarkdown(replyMessage);
             }
-            restartAfterResult(ctx);
+            await restartAfterResult(ctx);
         } catch (error) {
             ctx.reply('An error occurred while fetching the movie data. Please try again later.');
         }
@@ -154,29 +126,8 @@ const popularReply = async() => {
     }
 }
 
-
-bot.on('callback_query', (ctx) => {
-    const callbackData = ctx.callbackQuery.data;
-
-    if (callbackData === 'movies') {
-        ctx.reply('You clicked Movies. Please enter the name of the movie:');
-        movieReply();
-    }
-    else if (callbackData === 'popularMovies') {
-        ctx.reply('You clicked Popular Movies.');
-        popularReply();
-    }
-    else if (callbackData === 'boxOffice') {
-        ctx.reply('You clicked Box Office Collection.');
-        reply();
-    }
-    else if (callbackData === 'anticipated') {
-        ctx.reply('You clicked Most Anticipated Movies.');
-        reply();
-    }
-    else {
-        ctx.reply('Unknown option');
-    }
-});
-
 bot.launch();
+
+module.exports = {
+    restartAfterResult
+}
