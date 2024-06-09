@@ -25,6 +25,36 @@ const fetchMovie = async (title, year) => {
     }
 };
 
+const popularMovie = async () => {
+    try {
+        const response = await axios.get('https://api.trakt.tv/movies/popular');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching data from trakt API:', error);
+        throw new Error('Internal Server Error');
+    }
+};
+
+const anticipated = async () => {
+    try {
+        const response = await axios.get('https://api.trakt.tv/movies/anticipated');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching data from trakt API:', error);
+        throw new Error('Internal Server Error');
+    }
+};
+
+const boxOffice = async () => {
+    try {
+        const response = await axios.get('https://api.trakt.tv/movies/boxoffice');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching data from trakt API:', error);
+        throw new Error('Internal Server Error');
+    }
+};
+
 const startCommand = (ctx) => {
     ctx.reply('Welcome to the bot, what do you want to do', {
         reply_markup: {
@@ -33,10 +63,13 @@ const startCommand = (ctx) => {
                     { text: 'Movies Info 🍿', callback_data: 'movies' }
                 ],
                 [
-                    { text: 'Trending This Weak', callback_data: 'weaklyTrend' }
+                    { text: 'Popular Movies', callback_data: 'popularMovies' }
                 ],
                 [
-                    { text: 'Trending This Day ', callback_data: 'dailyTrend' }
+                    { text: 'Box Office Collection', callback_data: 'boxOffice' }
+                ],
+                [
+                    { text: 'Most Anticipated Movies', callback_data: 'anticipated' }
                 ],
                 [
                     { text: 'restart 👀', callback_data: 'restart' }
@@ -73,7 +106,7 @@ bot.action('restart',(ctx)=>{
     startCommand(ctx)
 })
 
-const reply = () => {
+const movieReply = () => {
     bot.on('text', async (ctx) => {
         const userInput = ctx.message.text;
         try {
@@ -107,12 +140,38 @@ const reply = () => {
     });
 }
 
+const popularReply = async() => {
+    try {
+        const popularData = await popularMovie()
+        const oneReplyData = `
+        *Title*:${popularData.title},
+        *Year*:${popularData.year}`
+        for (let index = 0; index < popularData.length; index++) {
+            ctx.replyWithMarkdown(oneReplyData);
+        }
+    } catch (error) {
+        ctx.reply('error in fetching the popular movies')
+    }
+}
+
 
 bot.on('callback_query', (ctx) => {
     const callbackData = ctx.callbackQuery.data;
 
     if (callbackData === 'movies') {
         ctx.reply('You clicked Movies. Please enter the name of the movie:');
+        movieReply();
+    }
+    else if (callbackData === 'popularMovies') {
+        ctx.reply('You clicked Popular Movies.');
+        popularReply();
+    }
+    else if (callbackData === 'boxOffice') {
+        ctx.reply('You clicked Box Office Collection.');
+        reply();
+    }
+    else if (callbackData === 'anticipated') {
+        ctx.reply('You clicked Most Anticipated Movies.');
         reply();
     }
     else {
