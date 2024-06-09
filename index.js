@@ -15,7 +15,7 @@ const startCommand = (ctx) => {
                     { text: 'Popular Movies', callback_data: 'popularMovies' }
                 ],
                 [
-                    { text: 'Box Office Collection', callback_data: 'boxOffice' }
+                    { text: 'Recent Box Office Collection', callback_data: 'boxOffice' }
                 ],
                 [
                     { text: 'Most Anticipated Movies', callback_data: 'anticipated' }
@@ -63,15 +63,15 @@ bot.on('callback_query', (ctx) => {
     }
     else if (callbackData === 'popularMovies') {
         ctx.reply('You clicked Popular Movies.');
-        popularReply();
+        popularReply(ctx);
     }
     else if (callbackData === 'boxOffice') {
         ctx.reply('You clicked Box Office Collection.');
-        reply();
+        boxOfficeReply(ctx);
     }
     else if (callbackData === 'anticipated') {
         ctx.reply('You clicked Most Anticipated Movies.');
-        reply();
+        anticipatedReply(ctx);
     }
     else {
         ctx.reply('Unknown option');
@@ -112,19 +112,74 @@ const movieInfoReply = () => {
     });
 }
 
-const popularReply = async() => {
+const popularReply = async(ctx) => {
     try {
         const popularData = await popularMovie()
-        const oneReplyData = `
-        *Title*:${popularData.title},
-        *Year*:${popularData.year}`
         for (let index = 0; index < popularData.length; index++) {
+            const movie = popularData[index];
+            const oneReplyData = `
+*Title*:${movie.title},
+*Year*:${movie.year}`
             ctx.replyWithMarkdown(oneReplyData);
         }
+
     } catch (error) {
         ctx.reply('error in fetching the popular movies')
     }
 }
+
+const boxOfficeReply = async(ctx) => {
+    try {
+        const boxOfficeData = await boxOffice()
+        for (let index = 0; index < boxOfficeData.length; index++) {
+            const movies = boxOfficeData[index];
+            const oneReplyData = `
+*Title*: ${movies.movie.title},
+*Anticipated Year*: ${movies.movie.year}
+*Revenue*: ${movies.revenue}`
+            ctx.replyWithMarkdown(oneReplyData);
+        }
+
+    } catch (error) {
+        //ctx.reply('error in fetching the popular movies')
+        console.log ( error )
+    }
+}
+
+const anticipatedReply = async(ctx) => {
+    try {
+        const anticipatedData = await anticipated()
+        for (let index = 0; index < anticipatedData.length; index++) {
+            const movies = anticipatedData[index].movie;
+            const oneReplyData = `
+*Title*: ${movies.title},
+*Anticipated Year*: ${movies.year}`
+            ctx.replyWithMarkdown(oneReplyData);
+        }
+
+    } catch (error) {
+        //ctx.reply('error in fetching the popular movies')
+        console.log ( error )
+    }
+}
+
+// const reClickCommand = (ctx) => {
+//     ctx.reply(',,,,,', {
+//         reply_markup: {
+//             inline_keyboard: [
+//                 for (let index = 0; index < array.length; index++) {
+//                     const element = array[index];
+//                     [
+//                         { text: 'Movies Info 🍿', callback_data: 'movies' }
+//                     ]
+//                 }
+//             ]
+             
+//         },
+//         parse_mode: "Markdown",
+//         disable_web_page_preview: true
+//     });
+// }
 
 bot.launch();
 
