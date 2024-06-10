@@ -29,7 +29,7 @@ I've developed a project using Node.js environment, with the Telegraf npm packag
 - List most anticipated movies
 - Show weekly most played movies
 - Easy navigation with inline keyboard buttons (The output of popular movies, box office collections, anticipated movies, most played movies are in form of inline keyboard so that when they are clicked it fetches the detailed information about that same movie)
-![screenshot of /start](<Screenshot 2024-06-10 at 10.08.26 PM.png>)
+![screenshot of /start](<screenshots/Screenshot 2024-06-10 at 10.08.26 PM.png>)
 
 ## Installation 🧑‍🔧
 
