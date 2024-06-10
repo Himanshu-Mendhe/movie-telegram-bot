@@ -57,76 +57,49 @@ bot.action('restart', async(ctx)=>{
     await startCommand(ctx)
 })
 
-bot.on('callback_query', (ctx) => {
+bot.on('callback_query', async(ctx) => {
     const callbackData = ctx.callbackQuery.data;
 
     if (callbackData === 'movies') {
         ctx.reply('You clicked Movies. Please enter the name of the movie:');
-        movieInfoReply();
+        await movieInfoReply();
     }
     else if (callbackData === 'popularMovies') {
         ctx.reply('You clicked Popular Movies.');
-        popularReply(ctx);
+        await popularReply(ctx);
     }
     else if (callbackData === 'boxOffice') {
         ctx.reply('You clicked Box Office Collection.');
-        boxOfficeReply(ctx);
+        await boxOfficeReply(ctx);
     }
     else if (callbackData === 'played') {
         ctx.reply('You clicked Most Played.');
-        mostPlayedReply(ctx);
+        await mostPlayedReply(ctx);
     }
     else if (callbackData === 'anticipated') {
         ctx.reply('You clicked Most Anticipated Movies.');
-        anticipatedReply(ctx);
+        await anticipatedReply(ctx);
+    }
+    else if (callbackData.startsWith('123_')) {
+        const parts = callbackData.split('123_');
+        const movieTitle = parts[1];
+        ctx.reply(`You clicked ${movieTitle}`);
+
+        await movieInfoReplyForOutput(ctx, movieTitle);
     }
     else {
         ctx.reply('Unknown option');
     }
 });
 
-const movieInfoReply = () => {
-    bot.on('text', async (ctx) => {
-        const userInput = ctx.message.text;
-        try {
-            const movieData = await fetchMovie(userInput);
 
-            if (movieData.Response === 'False') {
-                ctx.reply(`Sorry, I couldn't find any movie with the title "${userInput}".`);
-            } else {
-                const replyMessage = `
-*Title:* ${movieData.Title}
-*Year:* ${movieData.Year}
-*Rated:* ${movieData.Rated}
-*Released:* ${movieData.Released}
-*Runtime:* ${movieData.Runtime}
-*Genre:* ${movieData.Genre}
-*Director:* ${movieData.Director}
-*Writer:* ${movieData.Writer}
-*Actors:* ${movieData.Actors}
-*Plot:* ${movieData.Plot}
-*Language:* ${movieData.Language}
-*Country:* ${movieData.Country}
-*Awards:* ${movieData.Awards}
-*IMDB Rating:* ${movieData.imdbRating}
-`;
-                await ctx.replyWithMarkdown(replyMessage);
-            }
-            await restartAfterResult(ctx);
-        } catch (error) {
-            ctx.reply('An error occurred while fetching the movie data. Please try again later.');
-        }
-    });
-}
-
-const movieInfoReplyForOutput = async(ctx) => {
+const movieInfoReplyForOutput = async(ctx, inputMovieName) => {
    
-        const userInput = movie.title;
         try {
-            const movieData = await fetchMovie(userInput);
+            const movieData = await fetchMovie(inputMovieName);
 
             if (movieData.Response === 'False') {
-                ctx.reply(`Sorry, I couldn't find any movie with the title "${userInput}".`);
+                ctx.reply(`Sorry, I couldn't find any movie with the title "${inputMovieName}".`);
             } else {
                 const replyMessage = `
 *Title:* ${movieData.Title}
@@ -157,8 +130,8 @@ const popularReply = async(ctx) => {
         const popularData = await popularMovie()
         let inline_keyboard = [];
         for (let index = 0; index < popularData.length; index++) {
-            const movie = popularData[index];
-            inline_keyboard.push([{ text: `Title*:${movie.title}\n*Year*:${movie.year}`, callback_data: movieInfoReplyForOutput() }])
+            let movie = popularData[index];
+            inline_keyboard.push([{ text: `Title*:${movie.title}\n*Year*:${movie.year}`, callback_data: `123_${movie.title}` }])
         }            
         ctx.reply('here are most popular movies', {
             reply_markup: {
