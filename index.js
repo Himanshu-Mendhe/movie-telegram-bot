@@ -205,7 +205,9 @@ const boxOfficeReply = async(ctx) => {
         let inline_keyboard = [];
         for (let index = 0; index < boxOfficeData.length; index++) {
             let movies = boxOfficeData[index];
-            inline_keyboard.push([{ text: `*Title*: ${movies.movie.title}\n*Year*:${movies.movie.year}\n*Revenue*: ${movies.revenue}`, callback_data: `321_${movies.movie.title}` }])
+            inline_keyboard.push([{ text: `
+*Title*: ${movies.movie.title}
+*Revenue*: ${movies.revenue}`, callback_data: `321_${movies.movie.title}` }])
         }            
         await ctx.reply('here are most popular movies, click any of them to get the info', {
             reply_markup: {
@@ -253,10 +255,8 @@ const mostPlayedReply = async(ctx) => {
         for (let index = 0; index < mostPlayedData.length; index++) {
             let movies = mostPlayedData[index];
             inline_keyboard.push([{ text: `
-                *Title*: ${movies.movie.title}\n
-                *Year*: ${movies.movie.year}\n
-                *Watch Count*: ${movies.watcher_count}\n
-                *Play Count*:${movies.play_count}`, callback_data: `MPR_${movies.movie.title}` }])
+*Title*: ${movies.movie.title}
+*Watch Count*: ${movies.watcher_count}\n`, callback_data: `MPR_${movies.movie.title}` }])
         }            
         await ctx.reply('here are most popular movies, click any of them to get the info', {
             reply_markup: {
