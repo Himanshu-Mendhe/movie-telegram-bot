@@ -67,18 +67,30 @@ bot.on('callback_query', async(ctx) => {
     else if (callbackData === 'popularMovies') {
         ctx.reply('You clicked Popular Movies.');
         await popularReply(ctx);
+        await restartAfterResult(ctx);
     }
     else if (callbackData === 'boxOffice') {
         ctx.reply('You clicked Box Office Collection.');
         await boxOfficeReply(ctx);
+        await restartAfterResult(ctx);
     }
     else if (callbackData === 'played') {
         ctx.reply('You clicked Most Played.');
         await mostPlayedReply(ctx);
+        await restartAfterResult(ctx);
     }
     else if (callbackData === 'anticipated') {
         ctx.reply('You clicked Most Anticipated Movies.');
         await anticipatedReply(ctx);
+        await restartAfterResult(ctx);
+    }
+    else if (callbackData.startsWith('321_')) {
+        const parts = callbackData.split('321_');
+        const movieTitle = parts[1];
+        ctx.reply(`You clicked ${movieTitle}`);
+
+        await movieInfoReplyForOutput(ctx, movieTitle);
+        // await restartAfterResult(ctx);
     }
     else if (callbackData.startsWith('123_')) {
         const parts = callbackData.split('123_');
@@ -86,6 +98,7 @@ bot.on('callback_query', async(ctx) => {
         ctx.reply(`You clicked ${movieTitle}`);
 
         await movieInfoReplyForOutput(ctx, movieTitle);
+        // await restartAfterResult(ctx);
     }
     else {
         ctx.reply('Unknown option');
@@ -151,6 +164,7 @@ const movieInfoReplyForOutput = async(ctx, inputMovieName) => {
 `;
                 await ctx.replyWithMarkdown(replyMessage);
             }
+
             await restartAfterResult(ctx);
         } catch (error) {
             ctx.reply('An error occurred while fetching the movie data. Please try again later.');
@@ -163,32 +177,43 @@ const popularReply = async(ctx) => {
         let inline_keyboard = [];
         for (let index = 0; index < popularData.length; index++) {
             let movie = popularData[index];
-            inline_keyboard.push([{ text: `Title*:${movie.title}\n*Year*:${movie.year}`, callback_data: `123_${movie.title}` }])
+            inline_keyboard.push([{ text: `*Title*:${movie.title}\n*Year*:${movie.year}`, callback_data: `123_${movie.title}` }])
         }            
-        ctx.reply('here are most popular movies, click any of them to get the info', {
+        await ctx.reply('here are most popular movies, click any of them to get the info', {
             reply_markup: {
                 inline_keyboard     
             },
     parse_mode: "Markdown",
     disable_web_page_preview: true
     });
-
     } catch (error) {
-        ctx.reply('error in fetching the popular movies')
+        ctx.reply('error in fetching the popular movies/ API ISSUE')
     }
 }
 
 const boxOfficeReply = async(ctx) => {
     try {
         const boxOfficeData = await boxOffice()
+        let inline_keyboard = [];
         for (let index = 0; index < boxOfficeData.length; index++) {
-            const movies = boxOfficeData[index];
-            const oneReplyData = `
-*Title*: ${movies.movie.title},
-*Anticipated Year*: ${movies.movie.year}
-*Revenue*: ${movies.revenue}`
-            ctx.replyWithMarkdown(oneReplyData);
-        }
+            let movies = boxOfficeData[index];
+            inline_keyboard.push([{ text: `*Title*: ${movies.movie.title}\n*Year*:${movies.movie.year}\n*Revenue*: ${movies.revenue}`, callback_data: `321_${movies.movie.title}` }])
+        }            
+        await ctx.reply('here are most popular movies, click any of them to get the info', {
+            reply_markup: {
+                inline_keyboard     
+            },
+    parse_mode: "Markdown",
+    disable_web_page_preview: true
+})
+//         for (let index = 0; index < boxOfficeData.length; index++) {
+//             const movies = boxOfficeData[index];
+//             const oneReplyData = `
+// *Title*: ${movies.movie.title},
+// *Anticipated Year*: ${movies.movie.year}
+// *Revenue*: ${movies.revenue}`
+//             ctx.replyWithMarkdown(oneReplyData);
+//         }
 
     } catch (error) {
         //ctx.reply('error in fetching the popular movies')
