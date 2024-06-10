@@ -92,6 +92,14 @@ bot.on('callback_query', async(ctx) => {
         await movieInfoReplyForOutput(ctx, movieTitle);
         // await restartAfterResult(ctx);
     }
+    else if (callbackData.startsWith('MPR_')) {
+        const parts = callbackData.split('MPR_');
+        const movieTitle = parts[1];
+        ctx.reply(`You clicked ${movieTitle}`);
+
+        await movieInfoReplyForOutput(ctx, movieTitle);
+        // await restartAfterResult(ctx);
+    }
     else if (callbackData.startsWith('123_')) {
         const parts = callbackData.split('123_');
         const movieTitle = parts[1];
@@ -241,15 +249,31 @@ const anticipatedReply = async(ctx) => {
 const mostPlayedReply = async(ctx) => {
     try {
         const mostPlayedData = await mostPlayed()
+        let inline_keyboard = [];
         for (let index = 0; index < mostPlayedData.length; index++) {
-            const movies = mostPlayedData[index];
-            const oneReplyData = `
-*Title*: ${movies.movie.title},
-*Year*: ${movies.movie.year}
-*Watch Count*: ${movies.watcher_count}
-*Play Count*:${movies.play_count}`
-            ctx.replyWithMarkdown(oneReplyData);
-        }
+            let movies = mostPlayedData[index];
+            inline_keyboard.push([{ text: `
+                *Title*: ${movies.movie.title}\n
+                *Year*: ${movies.movie.year}\n
+                *Watch Count*: ${movies.watcher_count}\n
+                *Play Count*:${movies.play_count}`, callback_data: `MPR_${movies.movie.title}` }])
+        }            
+        await ctx.reply('here are most popular movies, click any of them to get the info', {
+            reply_markup: {
+                inline_keyboard     
+            },
+    parse_mode: "Markdown",
+    disable_web_page_preview: true
+    });
+//         for (let index = 0; index < mostPlayedData.length; index++) {
+//             const movies = mostPlayedData[index];
+//             const oneReplyData = `
+// *Title*: ${movies.movie.title},
+// *Year*: ${movies.movie.year}
+// *Watch Count*: ${movies.watcher_count}
+// *Play Count*:${movies.play_count}`
+//             ctx.replyWithMarkdown(oneReplyData);
+//         }
 
     } catch (error) {
         ctx.reply('error in fetching the most played')
