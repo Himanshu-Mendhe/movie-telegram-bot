@@ -92,6 +92,38 @@ bot.on('callback_query', async(ctx) => {
     }
 });
 
+const movieInfoReply = () => {
+    bot.on('text', async (ctx) => {
+        const userInput = ctx.message.text;
+        try {
+            const movieData = await fetchMovie(userInput);
+            if (movieData.Response === 'False') {
+                ctx.reply(`Sorry, I couldn't find any movie with the title "${userInput}".`);
+            } else {
+                const replyMessage = `
+*Title:* ${movieData.Title}
+*Year:* ${movieData.Year}
+*Rated:* ${movieData.Rated}
+*Released:* ${movieData.Released}
+*Runtime:* ${movieData.Runtime}
+*Genre:* ${movieData.Genre}
+*Director:* ${movieData.Director}
+*Writer:* ${movieData.Writer}
+*Actors:* ${movieData.Actors}
+*Plot:* ${movieData.Plot}
+*Language:* ${movieData.Language}
+*Country:* ${movieData.Country}
+*Awards:* ${movieData.Awards}
+*IMDB Rating:* ${movieData.imdbRating}
+`;
+                await ctx.replyWithMarkdown(replyMessage);
+            }
+            await restartAfterResult(ctx);
+        } catch (error) {
+            ctx.reply('An error occurred while fetching the movie data. Please try again later.');
+        }
+    });
+}
 
 const movieInfoReplyForOutput = async(ctx, inputMovieName) => {
    
@@ -133,7 +165,7 @@ const popularReply = async(ctx) => {
             let movie = popularData[index];
             inline_keyboard.push([{ text: `Title*:${movie.title}\n*Year*:${movie.year}`, callback_data: `123_${movie.title}` }])
         }            
-        ctx.reply('here are most popular movies', {
+        ctx.reply('here are most popular movies, click any of them to get the info', {
             reply_markup: {
                 inline_keyboard     
             },
@@ -176,7 +208,7 @@ const anticipatedReply = async(ctx) => {
         }
 
     } catch (error) {
-        //ctx.reply('error in fetching the popular movies')
+        ctx.reply('error in fetching the anticipated movies/ api issue')
         console.log ( error )
     }
 }
