@@ -1,5 +1,5 @@
 const { BOT_ID, API_KEY } = require('./config/env-config.js');
-const {fetchMovie, popularMovie, anticipated, boxOffice} = require('./apiCalls.js')
+const {fetchMovie, popularMovie, anticipated, boxOffice, mostPlayed} = require('./apiCalls.js')
 const { Telegraf } = require('telegraf');
 
 const bot = new Telegraf(BOT_ID);
@@ -19,6 +19,9 @@ const startCommand = (ctx) => {
                 ],
                 [
                     { text: 'Most Anticipated Movies', callback_data: 'anticipated' }
+                ],
+                [
+                    { text: 'Weekly Most Played Movies', callback_data: 'played' }
                 ],
                 [
                     { text: 'restart 👀', callback_data: 'restart' }
@@ -69,6 +72,10 @@ bot.on('callback_query', (ctx) => {
         ctx.reply('You clicked Box Office Collection.');
         boxOfficeReply(ctx);
     }
+    else if (callbackData === 'played') {
+        ctx.reply('You clicked Most Played.');
+        mostPlayedReply(ctx);
+    }
     else if (callbackData === 'anticipated') {
         ctx.reply('You clicked Most Anticipated Movies.');
         anticipatedReply(ctx);
@@ -112,16 +119,54 @@ const movieInfoReply = () => {
     });
 }
 
+const movieInfoReplyForOutput = async(ctx) => {
+   
+        const userInput = movie.title;
+        try {
+            const movieData = await fetchMovie(userInput);
+
+            if (movieData.Response === 'False') {
+                ctx.reply(`Sorry, I couldn't find any movie with the title "${userInput}".`);
+            } else {
+                const replyMessage = `
+*Title:* ${movieData.Title}
+*Year:* ${movieData.Year}
+*Rated:* ${movieData.Rated}
+*Released:* ${movieData.Released}
+*Runtime:* ${movieData.Runtime}
+*Genre:* ${movieData.Genre}
+*Director:* ${movieData.Director}
+*Writer:* ${movieData.Writer}
+*Actors:* ${movieData.Actors}
+*Plot:* ${movieData.Plot}
+*Language:* ${movieData.Language}
+*Country:* ${movieData.Country}
+*Awards:* ${movieData.Awards}
+*IMDB Rating:* ${movieData.imdbRating}
+`;
+                await ctx.replyWithMarkdown(replyMessage);
+            }
+            await restartAfterResult(ctx);
+        } catch (error) {
+            ctx.reply('An error occurred while fetching the movie data. Please try again later.');
+        };
+}
+
 const popularReply = async(ctx) => {
     try {
         const popularData = await popularMovie()
+        let inline_keyboard = [];
         for (let index = 0; index < popularData.length; index++) {
             const movie = popularData[index];
-            const oneReplyData = `
-*Title*:${movie.title},
-*Year*:${movie.year}`
-            ctx.replyWithMarkdown(oneReplyData);
-        }
+            inline_keyboard.push([{ text: `Title*:${movie.title}\n*Year*:${movie.year}`, callback_data: movieInfoReplyForOutput() }])
+        }            
+        ctx.reply('here are most popular movies', {
+            reply_markup: {
+                inline_keyboard     
+            },
+    parse_mode: "Markdown",
+    disable_web_page_preview: true
+    });
 
     } catch (error) {
         ctx.reply('error in fetching the popular movies')
@@ -159,6 +204,25 @@ const anticipatedReply = async(ctx) => {
 
     } catch (error) {
         //ctx.reply('error in fetching the popular movies')
+        console.log ( error )
+    }
+}
+
+const mostPlayedReply = async(ctx) => {
+    try {
+        const mostPlayedData = await mostPlayed()
+        for (let index = 0; index < mostPlayedData.length; index++) {
+            const movies = mostPlayedData[index];
+            const oneReplyData = `
+*Title*: ${movies.movie.title},
+*Year*: ${movies.movie.year}
+*Watch Count*: ${movies.watcher_count}
+*Play Count*:${movies.play_count}`
+            ctx.replyWithMarkdown(oneReplyData);
+        }
+
+    } catch (error) {
+        ctx.reply('error in fetching the most played')
         console.log ( error )
     }
 }

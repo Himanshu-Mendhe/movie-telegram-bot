@@ -48,9 +48,20 @@ const boxOffice = async () => {
     }
 };
 
+const mostPlayed = async () => {
+    try {
+        const response = await axios.get('https://api.trakt.tv/movies/played/weekly');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching data from trakt API:', error);
+        throw new Error('Internal Server Error');
+    }
+};
+
 module.exports = {
     fetchMovie,
     popularMovie,
     anticipated,
-    boxOffice
+    boxOffice,
+    mostPlayed
 }
