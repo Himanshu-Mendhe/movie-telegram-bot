@@ -60,12 +60,20 @@ I've developed a project using Node.js environment, with the Telegraf npm packag
 ## Commands 🫡
 
 - `/start` - Start the bot and display the main menu
+![screenshot of /start](<screenshots/Screenshot 2024-06-10 at 10.08.26 PM.png>)
 - `Movies Info 🍿` - Get information about a specific movie
+![screenshot of /start](<screenshots/Screenshot 2024-06-10 at 10.10.24 PM.png>)
 - `Popular Movies 🎬` - List popular movies
+![screenshot of /start](<screenshots/Screenshot 2024-06-10 at 10.10.58 PM.png>)
 - `Recent Box Office Collection 💰` - Show recent box office collections
+![screenshot of /start](<screenshots/Screenshot 2024-06-10 at 10.11.14 PM.png>)
 - `Most Anticipated Movies 🎥` - List most anticipated movies
+![screenshot of /start](<screenshots/Screenshot 2024-06-10 at 10.11.33 PM.png>)
 - `Weekly Most Played Movies ⏯` - Show weekly most played movies
+![screenshot of /start](<screenshots/Screenshot 2024-06-10 at 10.12.32 PM.png>)
 - `restart 👀` - Restart the bot   
+![screenshot of /start](<screenshots/Screenshot 2024-06-10 at 10.13.29 PM.png>)
+
 
 ## API Calls 📲
 
