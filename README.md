@@ -100,5 +100,5 @@ Fork and open the pull request
 
 ## Contact 📇
 
-- **GitHub**: [Himanshu Mendhe](https://github.com/Himanshu-Mendhe)
+- **GitHub**: [Himanshu-Mendhe](https://github.com/Himanshu-Mendhe)
 - **Email**: mendhehimanshu20@gmail.com
