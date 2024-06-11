@@ -100,6 +100,14 @@ bot.on('callback_query', async(ctx) => {
         await movieInfoReplyForOutput(ctx, movieTitle);
         // await restartAfterResult(ctx);
     }
+    else if (callbackData.startsWith('AMR_')) {
+        const parts = callbackData.split('AMR_');
+        const movieTitle = parts[1];
+        ctx.reply(`📛 You clicked ${movieTitle}`);
+
+        await movieInfoReplyForOutput(ctx, movieTitle);
+        // await restartAfterResult(ctx);
+    }
     else if (callbackData.startsWith('123_')) {
         const parts = callbackData.split('123_');
         const movieTitle = parts[1];
@@ -234,13 +242,27 @@ const boxOfficeReply = async(ctx) => {
 const anticipatedReply = async(ctx) => {
     try {
         const anticipatedData = await anticipated()
+        let inline_keyboard = [];
         for (let index = 0; index < anticipatedData.length; index++) {
-            const movies = anticipatedData[index].movie;
-            const oneReplyData = `
-*Title*: ${movies.title},
-*Anticipated Year*: ${movies.year}`
-            ctx.replyWithMarkdown(oneReplyData);
-        }
+            let movies = anticipatedData[index];
+            inline_keyboard.push([{ text: `
+*Title*: ${movies.movie.title}
+*Anticipated Year*: ${movies.movie.year}\n`, callback_data: `AMR_${movies.movie.title}` }])
+        }            
+        await ctx.reply('📛 here are most Anticipated movies, click any of them to get the info', {
+            reply_markup: {
+                inline_keyboard     
+            },
+    parse_mode: "Markdown",
+    disable_web_page_preview: true
+    });
+//         for (let index = 0; index < anticipatedData.length; index++) {
+//             const movies = anticipatedData[index].movie;
+//             const oneReplyData = `
+// *Title*: ${movies.title},
+// *Anticipated Year*: ${movies.year}`
+//             await ctx.replyWithMarkdown(oneReplyData);
+//         }
 
     } catch (error) {
         ctx.reply('🫤 error in fetching the anticipated movies/ api issue')
